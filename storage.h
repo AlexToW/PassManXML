@@ -57,6 +57,8 @@ public:
     bool ExistAccount(const string& user_name);
     bool ExistPasswordItem(PasswordItem& pass_item);
     bool AddPasswordItem(PasswordItem& pass_item);
+    static string PreprocessingToXML(string s);
+    string PreprocessingFromXML(string s);
     boost::property_tree::ptree ChildByPasswordItem(PasswordItem& pass_item);
     pair<FIND_RES, vector<PasswordItem>> SelectAllByEmail(const string& email); // вызываются из PassMan для соотв. юзера
     pair<FIND_RES, vector<PasswordItem>> SelectAllByAppName(const string& app);
@@ -71,6 +73,43 @@ private:
     vector<PasswordItem> all_passwords_; // all password items by active_login user
 };
 
+string Storage::PreprocessingToXML(string s) {
+    string res = "";
+    for (size_t i = 0; i < s.length(); i++) {
+        if (s[i] == '<') res += "&lt;";
+        else if (s[i] == '>') res += "&gt;";
+        else if (s[i] == '&') res += "&amp;";
+        else if (s[i] == '\"') res += "&quot;";
+        else if (s[i] == '\'') res += "&apos;";
+        else res += s[i];
+    }
+    return res;
+}
+
+string Storage::PreprocessingFromXML(string s) {
+    string res = "";
+    for (size_t i = 0; i < s.length(); i++){
+        if (s[i] == '&'){
+            if (s[i+1] == 'l') {
+                res += '<';
+                i += 3;
+            } else if (s[i+1] == 'g') {
+                res += '>';
+                i += 3;
+            } else if (s[i+1] == 'q') {
+                res += '\"';
+                i += 5;
+            } else if (s[i+1] == 'a' && s[i+2] == 'm') {
+                res += '&';
+                i += 4;
+            } else if (s[i+1] == 'a' && s[i+2] == 'p') {
+                res += '\'';
+                i += 5;
+            }
+        } else res += s[i];
+    }
+    return res;
+}
 
 void Storage::Init() {
     if (!ExistDataFile()) {
