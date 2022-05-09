@@ -63,6 +63,7 @@ public:
     static string PreprocessingToXML(string s);
     string PreprocessingFromXML(string s);
     boost::property_tree::ptree ChildByPasswordItem(PasswordItem& pass_item);
+    pair<FIND_RES, vector<PasswordItem>> AllPasswords();
     pair<FIND_RES, vector<PasswordItem>> SelectAllByEmail(const string& email); // вызываются из PassMan для соотв. юзера
     pair<FIND_RES, vector<PasswordItem>> SelectAllByAppName(const string& app);
 private:
@@ -75,6 +76,12 @@ private:
     string active_login;
     vector<PasswordItem> all_passwords_; // all password items by active_login user
 };
+
+pair<FIND_RES, vector<PasswordItem>> Storage::AllPasswords() {
+    if (all_passwords_.empty()){
+        return make_pair(FIND_RES::NOTFOUND, vector<PasswordItem> {});
+    } return make_pair(FIND_RES::SUCCESS, all_passwords_);
+}
 
 string Storage::PreprocessingToXML(string s) {
     string res = "";
