@@ -151,6 +151,13 @@ bool PassMan::Registration() {
 }
 
 void PassMan::Start() {
+    cout << "                                                     \n"
+            ",------.                   ,--.   ,--.               \n"
+            "|  .--. ',--,--.,---. ,---.|   `.'   |,--,--,--,--,  \n"
+            "|  '--' ' ,-.  (  .-'(  .-'|  |'.'|  ' ,-.  |      \\ \n"
+            "|  | --'\\ '-'  .-'  `.-'  `|  |   |  \\ '-'  |  ||  | \n"
+            "`--'     `--`--`----'`----'`--'   `--'`--`--`--''--' \n"
+            "                                                     " << "\n";
     std::cout << "_________Password Manager_________" << std::endl;
     std::cout << "Registration / Authorisation / Exit? [r/a/e]: ";
     std::string command;
