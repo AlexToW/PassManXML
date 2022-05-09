@@ -1,4 +1,4 @@
 # PassManXML
-## Run:
-### sudo apt-get install libboost-all-dev
-### make
+### Run:
+ sudo apt-get install libboost-all-dev
+ make
