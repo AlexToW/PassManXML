@@ -31,6 +31,9 @@ using namespace std;
  *          8.0 Проверяет поступивший PasswordItem на уникальность
  *          8.1 Добавляет PasswordItem в контейнер
  *          8.2 Добавляет PasswordItem в файл data.xml
+ *
+ *      - шифрование            [to do]
+ *      - замена зарезервированных XML символов     [done]
  * */
 
 enum class AUTHORISE_RES {
@@ -164,13 +167,13 @@ void Storage::ParseAllDataByLogin(const string& login) {
     ptree pt;
     read_xml(default_data_path_, pt);
     BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
-        string tmp_login = password_item.second.get_child("login").get_value("default");
+        string tmp_login = PreprocessingFromXML(password_item.second.get_child("login").get_value("default"));
         if(tmp_login == login) {
-            string user_name = password_item.second.get_child("user_name").get_value("default");
-            string password = password_item.second.get_child("password").get_value("default");
-            string email = password_item.second.get_child("email").get_value("default");
-            string url = password_item.second.get_child("url").get_value("default");
-            string app_name = password_item.second.get_child("app_name").get_value("default");
+            string user_name = PreprocessingFromXML(password_item.second.get_child("user_name").get_value("default"));
+            string password = PreprocessingFromXML(password_item.second.get_child("password").get_value("default"));
+            string email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
+            string url = PreprocessingFromXML(password_item.second.get_child("url").get_value("default"));
+            string app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
             PasswordItem item(password, email, user_name, url, app_name);
             all_passwords_.push_back(item);
         }
@@ -197,8 +200,8 @@ AUTHORISE_RES Storage::ConfirmAuthorisation(Account &account) {
     bool exist = false;
     read_xml(default_autho_path_, pt);
     BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
-        string tmp_user_name = acc.second.get_child("user_name").get_value("default");
-        string tmp_master_pass = acc.second.get_child("master_password").get_value("default");
+        string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
+        string tmp_master_pass = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
         if(account.GetUserName() == tmp_user_name) {
             exist = true;
             if(account.GetMasterPass() == tmp_master_pass) {
@@ -214,7 +217,7 @@ bool Storage::ExistAccount(const string& user_name) {
     ptree pt;
     read_xml(default_autho_path_, pt);
     BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
-        string tmp_user_name = acc.second.get_child("user_name").get_value("default");
+        string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
         if(user_name == tmp_user_name) {
             return true;
         }
@@ -230,8 +233,8 @@ bool Storage::RegisterAccount(Account& acc) {
     read_xml(default_autho_path_, pt);
 
     ptree child;
-    child.add("user_name", acc.GetUserName());
-    child.add("master_password", acc.GetMasterPass());
+    child.add("user_name", PreprocessingToXML(acc.GetUserName()));
+    child.add("master_password", PreprocessingToXML(acc.GetMasterPass()));
     pt.add_child("accounts.account", child);
 
     write_xml(default_autho_path_, pt);
@@ -244,12 +247,12 @@ bool Storage::ExistPasswordItem(PasswordItem& pass_item) {
 
 boost::property_tree::ptree Storage::ChildByPasswordItem(PasswordItem& pass_item) {
     ptree child;
-    child.add("login", active_login);
-    child.add("password", pass_item.GetPassword());
-    child.add("email", pass_item.GetEmail());
-    child.add("user_name", pass_item.GetEmail());
-    child.add("url", pass_item.GetUrl());
-    child.add("app_name", pass_item.GetAppName());
+    child.add("login", PreprocessingToXML(active_login));
+    child.add("password", PreprocessingToXML(pass_item.GetPassword()));
+    child.add("email", PreprocessingToXML(pass_item.GetEmail()));
+    child.add("user_name", PreprocessingToXML(pass_item.GetEmail()));
+    child.add("url", PreprocessingToXML(pass_item.GetUrl()));
+    child.add("app_name", PreprocessingToXML(pass_item.GetAppName()));
 
     return child;
 }
