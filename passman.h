@@ -41,6 +41,7 @@ public:
     void CreatePassword();
     void FindAccountsByEmail();
     void FindPassByName();
+    void AllPasswords();
 private:
     Storage storage;
     Account active_user;
@@ -81,6 +82,19 @@ void PassMan::FindAccountsByEmail() {
         cout << "There are no any passwords with email '" << email << "'" << endl;
     } else if(res.first == FIND_RES::ERROR) {
         cout << "Find by email failed!" << endl;
+    }
+}
+
+void PassMan::AllPasswords() {
+    auto res = storage.AllPasswords();
+    if (res.first == FIND_RES::SUCCESS) {
+        for(const auto& item : res.second) {
+            cout << item << endl;
+        }
+    } else if(res.first == FIND_RES::NOTFOUND) {
+        cout << "There are no any passwords!" << endl;
+    } else if(res.first == FIND_RES::ERROR) {
+        cout << "Error!" << endl;
     }
 }
 
@@ -199,7 +213,8 @@ void PassMan::Menu() {
     std::cout << "1. Create new password" << std::endl;
     std::cout << "2. Find all sites and apps connected to an email" << std::endl;
     std::cout << "3. Find a password for a site or app" << std::endl;
-    std::cout << "4. Exit" << std::endl;
+    std::cout << "4. Print all passwords" << std::endl;
+    std::cout << "5. Exit" << std::endl;
     std::cout << std::string(20, '_') << std::endl;
     std::cout << ": ";
     std::string answer;
@@ -211,6 +226,8 @@ void PassMan::Menu() {
     } else if(answer == "3") {
         FindPassByName();
     } else if(answer == "4") {
+        AllPasswords();
+    } else if (answer == "5") {
         exit(0);
     } else {
         std::cout << "Choose one of the suggested options!" << std::endl;
