@@ -31,9 +31,12 @@ using namespace std;
  *          8.0 Проверяет поступивший PasswordItem на уникальность
  *          8.1 Добавляет PasswordItem в контейнер
  *          8.2 Добавляет PasswordItem в файл data.xml
- *
+ *      9. Редактирование пароля (EditPasswordItem)                                         [done]
+ *          9.0 Проверка существования пароля для редактирования (выполняется в PassMan)
+ *          9.1 Заменить необходимые поля в файле
+ *          9.3 Заменить пароль в all_passwords_
  *      - шифрование            [to do]
- *      - замена зарезервированных XML символов     [done]
+ *      - замена зарезервированных XML символов                                             [done]
  * */
 
 enum class AUTHORISE_RES {
@@ -59,9 +62,11 @@ public:
     bool RegisterAccount(Account& account);
     bool ExistAccount(const string& user_name);
     bool ExistPasswordItem(PasswordItem& pass_item);
+    pair<bool, PasswordItem> ExistPasswordItem(string& identifier);
     bool AddPasswordItem(PasswordItem& pass_item);
     static string PreprocessingToXML(string s);
     string PreprocessingFromXML(string s);
+    void EditPasswordItem(string& identifier, PasswordItem& new_pass_item);
     boost::property_tree::ptree ChildByPasswordItem(PasswordItem& pass_item);
     pair<FIND_RES, vector<PasswordItem>> AllPasswords();
     pair<FIND_RES, vector<PasswordItem>> SelectAllByEmail(const string& email); // вызываются из PassMan для соотв. юзера
@@ -76,6 +81,45 @@ private:
     string active_login;
     vector<PasswordItem> all_passwords_; // all password items by active_login user
 };
+
+pair<bool, PasswordItem> Storage::ExistPasswordItem(string& identifier) {
+    pair<bool, PasswordItem> res = {false, PasswordItem{}};
+    auto it = find_if(begin(all_passwords_), end(all_passwords_), [identifier](PasswordItem& item) {
+        return item.GetEmail() == identifier || item.GetAppName() == identifier;
+    });
+    if(it != end(all_passwords_)) {
+        res.first = true;
+        res.second = *it;
+    }
+    return res;
+}
+
+void Storage::EditPasswordItem(string& identifier, PasswordItem& new_pass_item) { // identifier == app_name or email
+    // замена в файле
+    ptree pt;
+    read_xml(default_data_path_, pt);
+    BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
+        string tmp_email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
+        string tmp_app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
+        if(tmp_email == identifier || tmp_app_name == identifier) {
+            password_item.second.get_child("password").put_value(PreprocessingToXML(new_pass_item.GetPassword()));
+            password_item.second.get_child("email").put_value(PreprocessingToXML(new_pass_item.GetEmail()));
+            password_item.second.get_child("user_name").put_value(PreprocessingToXML(new_pass_item.GetUserName()));
+            password_item.second.get_child("url").put_value(PreprocessingToXML(new_pass_item.GetUrl()));
+            password_item.second.get_child("app_name").put_value(PreprocessingToXML(new_pass_item.GetAppName()));
+        }
+        //password_item.second.get_child("password").put_value("XXX");
+    }
+    write_xml(default_data_path_, pt);
+ 
+    // замена в all_passwords_
+    auto it = find_if(begin(all_passwords_), end(all_passwords_), [identifier](PasswordItem& item) {
+        return item.GetEmail() == identifier || item.GetAppName() == identifier;
+    });
+    if(it != end(all_passwords_)) {
+        *it = new_pass_item;
+    }
+}
 
 pair<FIND_RES, vector<PasswordItem>> Storage::AllPasswords() {
     if (all_passwords_.empty()){
@@ -116,7 +160,8 @@ string Storage::PreprocessingFromXML(string s) {
                 res += '\'';
                 i += 5;
             }
-        } else res += s[i];
+        } else
+            res += s[i];
     }
     return res;
 }
@@ -169,7 +214,6 @@ pair<FIND_RES, vector<PasswordItem>> Storage::SelectAllByEmail(const string& ema
     return result;
 }
 
-
 void Storage::ParseAllDataByLogin(const string& login) {
     ptree pt;
     read_xml(default_data_path_, pt);
@@ -187,7 +231,6 @@ void Storage::ParseAllDataByLogin(const string& login) {
     }
     active_login = login;
 }
-
 
 Storage::Storage() = default;
 
@@ -218,7 +261,6 @@ AUTHORISE_RES Storage::ConfirmAuthorisation(Account &account) {
     }
     return exist ? AUTHORISE_RES::INCORRECT : AUTHORISE_RES::NOACC;
 }
-
 
 bool Storage::ExistAccount(const string& user_name) {
     ptree pt;
@@ -260,7 +302,6 @@ boost::property_tree::ptree Storage::ChildByPasswordItem(PasswordItem& pass_item
     child.add("user_name", PreprocessingToXML(pass_item.GetEmail()));
     child.add("url", PreprocessingToXML(pass_item.GetUrl()));
     child.add("app_name", PreprocessingToXML(pass_item.GetAppName()));
-
     return child;
 }
 
