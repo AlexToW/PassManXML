@@ -9,7 +9,7 @@ using namespace std;
 
 class PasswordItem {
 public:
-    PasswordItem() {}
+    PasswordItem() = default;
     PasswordItem(const string& password, const string& email, const string& user_name,
                  const string& url, const string& app_name)
             : password_(password), email_(email),
@@ -19,6 +19,21 @@ public:
     string GetUserName() const {return user_name_;}
     string GetUrl() const {return url_;}
     string GetAppName() const {return app_name_;}
+    void SetPassword(string& password) {
+        password_ = password;
+    }
+    void SetEmail(string& email) {
+        email_ = email;
+    }
+    void SetUserName(string& user_name) {
+        user_name_ = user_name;
+    }
+    void SetUrl(string& url) {
+        url_ = url;
+    }
+    void SetAppName(string& app_name) {
+        app_name_ = app_name;
+    }
 private:
     string password_, email_, user_name_, url_, app_name_;
 };
