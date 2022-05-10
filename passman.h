@@ -1,28 +1,37 @@
-
+ 
 /*
  * class PassMan:
- *      1. запускает инициализацию Storage
- *      2. регистрация:
+ *      1. запускает инициализацию Storage                              [done]
+ *      2. регистрация:                                                 [done]
  *          2.1 запрос логина
  *          2.2 проверка, что аккаунта с таким логином нет (Storage)
  *          2.3 запрос мастер-пароля, подтверждение пароля
  *          2.4 Создание объекта Account
  *          2.5 Запрос к Storage на добавление аккаунта
- *      3. авторизация:
+ *      3. авторизация:                                                 [done]
  *          3.1 запрос логина
  *          3.2 проверка, что аккаунтом с таким логином есть (Storage)
  *          3.3 запрос пароля
  *          3.4 проверка пароля (Storage)
  *          3.5 запуск парсинга всех паролей в Storage
- *      4. Добавление пароля:
+ *      4. Добавление пароля:                                           [done]
  *          4.1 получение данных
  *          4.2 запрос к Storage
- *      5. Поиск паролей по Email:
+ *      5. Поиск паролей по Email:                                      [done]
  *          5.1 получение email
  *          5.2 запрос к Storage
- *      6. Поиск паролей по AppName:
+ *      6. Поиск паролей по AppName:                                    [done]
  *          6.1 получение AppName
  *          6.2 запрос к Storage
+ *      7. Вывести все пароли                                           [done]
+ *          7.1 запрос к Storage
+ *      8. Редактирование существующего пароля                          [done]
+ *          8.1 запрос email/app_name пароля на редактирование
+ *          8.2 проверка существования такого пароля (Storage)
+ *          8.3 какое поле хотим отредактировать?
+ *          8.4 получение значения для нового поля + подтверждение
+ *          8.5 запрос на изменение к Storage
+ *      9. Удаление пароля                                              [to do]
  * */
 #pragma once
 
@@ -42,11 +51,89 @@ public:
     void FindAccountsByEmail();
     void FindPassByName();
     void AllPasswords();
+    void EditPassword();
 private:
     Storage storage;
     Account active_user;
 };
 
+void PassMan::EditPassword() {
+    string identifier;
+    cout << "Enter email or app name of password you want to edit: ";
+    cin >> identifier;
+    // проверка существования такого пароля
+    auto res = storage.ExistPasswordItem(identifier);
+    bool exist = res.first;
+    PasswordItem old_pass_item = res.second;
+    PasswordItem new_pass_item = old_pass_item;
+    if(!exist) {
+        cout << "There are no any passwords with '" << identifier << "'" << endl;
+        return;
+    }
+    string answer = "0";
+    do {
+        cout << "Enter name of filed you want to edit [password[p]/email[e]/user_name[n]/url[u]/app_name[a]]" << endl;
+        cout << "or [s] to stop editing and save changes: ";
+        cin >> answer;
+        if(answer == "p") {
+            string new_password;
+            cout << "Enter new password: ";
+            cin >> new_password;
+            new_pass_item.SetPassword(new_password);
+        } else if(answer == "e") {
+            string new_email;
+            cout << "Enter new email: ";
+            cin >> new_email;
+            new_pass_item.SetEmail(new_email);
+        } else if(answer == "n") {
+            string new_user_name;
+            cout << "Enter new user name: ";
+            cin >> new_user_name;
+            new_pass_item.SetUserName(new_user_name);
+        } else if(answer == "u") {
+            string new_url;
+            cout << "Enter new URl: ";
+            cin >> new_url;
+            new_pass_item.SetUrl(new_url);
+        } else if(answer == "a") {
+            string new_app_name;
+            cout << "Enter new app name: ";
+            cin >> new_app_name;
+            new_pass_item.SetAppName(new_app_name);
+        } else {
+            cout << "Choose one of the suggested options!" << endl;
+        }
+    } while (answer != "s");
+ 
+    string confirm;
+    cout << "You are about to change this password:" << endl;
+    cout << old_pass_item << endl;
+    cout << "to this one:" << endl;
+    cout << new_pass_item << endl;
+    cout << "Do you want to save your changes? It will be impossible to undo this operation. [y/n]: ";
+    cin >> confirm;
+    if(confirm == "y") {
+        storage.EditPasswordItem(identifier, new_pass_item);
+        cout << "All changes have been successfully saved!" << endl;
+        return;
+    }
+    cout << "The changes were not saved." << endl;
+}
+ 
+ 
+void PassMan::AllPasswords() {
+    auto res = storage.AllPasswords();
+    if (res.first == FIND_RES::SUCCESS) {
+        for(const auto& item : res.second) {
+            cout << item << endl;
+        }
+    } else if(res.first == FIND_RES::NOTFOUND) {
+        cout << "There are no any passwords!" << endl;
+    } else if(res.first == FIND_RES::ERROR) {
+        cout << "Error!" << endl;
+    }
+}
+ 
 PassMan::PassMan() {
     storage.Init();
 }
@@ -68,7 +155,6 @@ void PassMan::FindPassByName() {
     }
 }
 
-
 void PassMan::FindAccountsByEmail() {
     string email;
     cout << "Enter email: ";
@@ -84,20 +170,6 @@ void PassMan::FindAccountsByEmail() {
         cout << "Find by email failed!" << endl;
     }
 }
-
-void PassMan::AllPasswords() {
-    auto res = storage.AllPasswords();
-    if (res.first == FIND_RES::SUCCESS) {
-        for(const auto& item : res.second) {
-            cout << item << endl;
-        }
-    } else if(res.first == FIND_RES::NOTFOUND) {
-        cout << "There are no any passwords!" << endl;
-    } else if(res.first == FIND_RES::ERROR) {
-        cout << "Error!" << endl;
-    }
-}
-
 
 void PassMan::CreatePassword() {
     std::string password, email, user_name, url, app_name;
@@ -120,7 +192,6 @@ void PassMan::CreatePassword() {
         std::cout << "Password successfully saved!" << std::endl;
     }
 }
-
 
 AUTHORISE_RES PassMan::Authorisation() {
     std::string login, master_pass_entered;
@@ -206,7 +277,6 @@ void PassMan::Start() {
     }
 }
 
-
 void PassMan::Menu() {
     std::cout << std::string(20, '_') << std::endl;
     std::cout << std::string(8, '_') << "Menu" << std::string(8, '_') << std::endl;
@@ -214,7 +284,8 @@ void PassMan::Menu() {
     std::cout << "2. Find all sites and apps connected to an email" << std::endl;
     std::cout << "3. Find a password for a site or app" << std::endl;
     std::cout << "4. Print all passwords" << std::endl;
-    std::cout << "5. Exit" << std::endl;
+    std::cout << "5. Edit existing password" << endl;
+    std::cout << "6. Exit" << std::endl;
     std::cout << std::string(20, '_') << std::endl;
     std::cout << ": ";
     std::string answer;
@@ -227,7 +298,10 @@ void PassMan::Menu() {
         FindPassByName();
     } else if(answer == "4") {
         AllPasswords();
-    } else if (answer == "5") {
+    } else if(answer == "5") {
+        EditPassword();
+    }
+    else if(answer == "6") {
         exit(0);
     } else {
         std::cout << "Choose one of the suggested options!" << std::endl;
