@@ -36,9 +36,8 @@
 #pragma once
 
 #include "account.h"
-#include "storage.h"
-
-using namespace std;
+#include "storage.h" 
+#include "encryption.h"
 
 class PassMan {
 public:
@@ -58,66 +57,75 @@ private:
 };
 
 void PassMan::EditPassword() {
-    string identifier;
-    cout << "Enter email or app name of password you want to edit: ";
-    cin >> identifier;
+    std::string identifier;
+    std::cout << "Enter email or app name of password you want to edit: ";
+    std::cin >> identifier;
     // проверка существования такого пароля
     auto res = storage.ExistPasswordItem(identifier);
     bool exist = res.first;
-    PasswordItem old_pass_item = res.second;
+    PasswordItem old_pass_item = res.second;  
+ 
+    AesEncryption aes("cbc", 256);
+    CryptoPP::SecByteBlock enc = aes.decrypt(old_pass_item.GetPassword(), active_user.GetMasterPass());
+    std::string decrypted_password = std::string(enc.begin(), enc.end()); 
+    old_pass_item.SetPassword(decrypted_password); 
+ 
     PasswordItem new_pass_item = old_pass_item;
     if(!exist) {
-        cout << "There are no any passwords with '" << identifier << "'" << endl;
+        std::cout << "There are no any passwords with '" << identifier << "'" << endl;
         return;
     }
-    string answer = "0";
+    std::string answer = "0";
     do {
-        cout << "Enter name of filed you want to edit [password[p]/email[e]/user_name[n]/url[u]/app_name[a]]" << endl;
-        cout << "or [s] to stop editing and save changes: ";
-        cin >> answer;
+        std::cout << "Enter name of filed you want to edit [password[p]/email[e]/user_name[n]/url[u]/app_name[a]]" << endl;
+        std::cout << "or [s] to stop editing and save changes: ";
+        std::cin >> answer;
         if(answer == "p") {
-            string new_password;
-            cout << "Enter new password: ";
-            cin >> new_password;
+            std::string new_password;
+            std::cout << "Enter new password: ";
+            std::cin >> new_password;
             new_pass_item.SetPassword(new_password);
         } else if(answer == "e") {
-            string new_email;
-            cout << "Enter new email: ";
-            cin >> new_email;
+            std::string new_email;
+            std::cout << "Enter new email: ";
+            std::cin >> new_email;
             new_pass_item.SetEmail(new_email);
         } else if(answer == "n") {
-            string new_user_name;
-            cout << "Enter new user name: ";
-            cin >> new_user_name;
+            std::string new_user_name;
+            std::cout << "Enter new user name: ";
+            std::cin >> new_user_name;
             new_pass_item.SetUserName(new_user_name);
         } else if(answer == "u") {
-            string new_url;
-            cout << "Enter new URl: ";
-            cin >> new_url;
+            std::string new_url;
+            std::cout << "Enter new URl: ";
+            std::cin >> new_url;
             new_pass_item.SetUrl(new_url);
         } else if(answer == "a") {
-            string new_app_name;
-            cout << "Enter new app name: ";
-            cin >> new_app_name;
+            std::string new_app_name;
+            std::cout << "Enter new app name: ";
+            std::cin >> new_app_name;
             new_pass_item.SetAppName(new_app_name);
         } else {
-            cout << "Choose one of the suggested options!" << endl;
+            std::cout << "Choose one of the suggested options!" << endl;
         }
     } while (answer != "s");
  
-    string confirm;
-    cout << "You are about to change this password:" << endl;
-    cout << old_pass_item << endl;
-    cout << "to this one:" << endl;
-    cout << new_pass_item << endl;
-    cout << "Do you want to save your changes? It will be impossible to undo this operation. [y/n]: ";
-    cin >> confirm;
+    std::string confirm;
+    std::cout << "You are about to change this password:" << std::endl;
+    std::cout << old_pass_item << std::endl;
+    std::cout << "to this one:" << std::endl;
+    std::cout << new_pass_item << std::endl;
+    std::cout << "Do you want to save your changes? It will be impossible to undo this operation. [y/n]: ";
+    std::cin >> confirm;
     if(confirm == "y") {
+        CryptoPP::SecByteBlock enc2 = aes.encrypt(new_pass_item.GetPassword(), active_user.GetMasterPass());
+        std::string encrypted_password = std::string(enc2.begin(), enc2.end());
+        new_pass_item.SetPassword(encrypted_password);
         storage.EditPasswordItem(identifier, new_pass_item);
-        cout << "All changes have been successfully saved!" << endl;
+        std::cout << "All changes have been successfully saved!" << std::endl;
         return;
     }
-    cout << "The changes were not saved." << endl;
+    std::cout << "The changes were not saved." << std::endl;
 }
  
  
@@ -125,12 +133,12 @@ void PassMan::AllPasswords() {
     auto res = storage.AllPasswords();
     if (res.first == FIND_RES::SUCCESS) {
         for(const auto& item : res.second) {
-            cout << item << endl;
+            std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
-        cout << "There are no any passwords!" << endl;
+        std::cout << "There are no any passwords!" << std::endl;
     } else if(res.first == FIND_RES::ERROR) {
-        cout << "Error!" << endl;
+        std::cout << "Error!" << std::endl;
     }
 }
  
@@ -139,42 +147,42 @@ PassMan::PassMan() {
 }
 
 void PassMan::FindPassByName() {
-    string app_name;
-    cout << "Enter app name: ";
-    cin >> app_name;
+    std::string app_name;
+    std::cout << "Enter app name: ";
+    std::cin >> app_name;
     auto res = storage.SelectAllByAppName(app_name);
 
     if(res.first == FIND_RES::SUCCESS) {
         for(const auto& item : res.second) {
-            cout << item << endl;
+            std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
-        cout << "There no any passwords with app name '" << app_name << "'" << endl;
+        std::cout << "There no any passwords with app name '" << app_name << "'" << std::endl;
     } else if(res.first == FIND_RES::ERROR) {
-        cout << "Find by app name failed!" << endl;
+        std::cout << "Find by app name failed!" << std::endl;
     }
 }
 
 void PassMan::FindAccountsByEmail() {
-    string email;
-    cout << "Enter email: ";
-    cin >> email;
+    std::string email;
+    std::cout << "Enter email: ";
+    std::cin >> email;
     auto res = storage.SelectAllByEmail(email);
     if(res.first == FIND_RES::SUCCESS) {
         for(const auto& item : res.second) {
-            cout << item << endl;
+            std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
-        cout << "There are no any passwords with email '" << email << "'" << endl;
+        std::cout << "There are no any passwords with email '" << email << "'" << std::endl;
     } else if(res.first == FIND_RES::ERROR) {
-        cout << "Find by email failed!" << endl;
+        std::cout << "Find by email failed!" << std::endl;
     }
 }
 
 void PassMan::CreatePassword() {
     std::string password, email, user_name, url, app_name;
-    cout << "Enter user name: ";
-    cin >> user_name;
+    std::cout << "Enter user name: ";
+    std::cin >> user_name;
     std::cout << "Enter email: ";
     std::cin >> email;
     std::cout << "Enter app_name: ";
@@ -210,19 +218,19 @@ AUTHORISE_RES PassMan::Authorisation() {
 
 bool PassMan::Registration() {
     string login;
-    cout << "Enter user name: ";
+    std::cout << "Enter user name: ";
     cin >> login;
     if(storage.ExistAccount(login)) {
-        cerr << "Account with login '" << login << "' already exists!" << endl;
+        cerr << "Account with login '" << login << "' already exists!" << std::endl;
         return false;
     }
     string master_password, master_password2;
-    cout << "Enter master password: ";
+    std::cout << "Enter master password: ";
     cin >> master_password;
-    cout << "Confirm master password: ";
+    std::cout << "Confirm master password: ";
     cin >> master_password2;
     if(master_password != master_password2) {
-        cerr << "Passwords must match!" << endl;
+        cerr << "Passwords must match!" << std::endl;
         return false;
     }
     Account new_account;
@@ -236,7 +244,7 @@ bool PassMan::Registration() {
 }
 
 void PassMan::Start() {
-    cout << "                                                     \n"
+    std::cout << "                                                     \n"
             ",------.                   ,--.   ,--.               \n"
             "|  .--. ',--,--.,---. ,---.|   `.'   |,--,--,--,--,  \n"
             "|  '--' ' ,-.  (  .-'(  .-'|  |'.'|  ' ,-.  |      \\ \n"
