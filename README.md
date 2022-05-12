@@ -8,3 +8,9 @@ $ cd PassManXML
 $ make
 $ ./passman
 ```
+
+## Functionality
+
+
+## To-do
+- [ ] Validation XML-files by schemes
