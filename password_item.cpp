@@ -9,6 +9,38 @@ bool operator==(PasswordItem& lhs, PasswordItem& rhs) {
             lhs.GetPassword() == rhs.GetPassword();
 }
 
+bool operator==(const PasswordItem& lhs, PasswordItem& rhs) {
+    return lhs.GetUserName() == rhs.GetUserName() &&
+            lhs.GetAppName() == rhs.GetAppName() &&
+            lhs.GetEmail() == rhs.GetEmail() &&
+            lhs.GetUrl() == rhs.GetUrl() &&
+            lhs.GetPassword() == rhs.GetPassword();
+}
+
+bool operator==(PasswordItem& lhs, const PasswordItem& rhs) {
+    return lhs.GetUserName() == rhs.GetUserName() &&
+            lhs.GetAppName() == rhs.GetAppName() &&
+            lhs.GetEmail() == rhs.GetEmail() &&
+            lhs.GetUrl() == rhs.GetUrl() &&
+            lhs.GetPassword() == rhs.GetPassword();
+}
+
+bool operator==(const PasswordItem& lhs, const PasswordItem& rhs) {
+    return lhs.GetUserName() == rhs.GetUserName() &&
+            lhs.GetAppName() == rhs.GetAppName() &&
+            lhs.GetEmail() == rhs.GetEmail() &&
+            lhs.GetUrl() == rhs.GetUrl() &&
+            lhs.GetPassword() == rhs.GetPassword();
+}
+
+bool operator==(PasswordItem lhs, const PasswordItem rhs) {
+    return lhs.GetUserName() == rhs.GetUserName() &&
+            lhs.GetAppName() == rhs.GetAppName() &&
+            lhs.GetEmail() == rhs.GetEmail() &&
+            lhs.GetUrl() == rhs.GetUrl() &&
+            lhs.GetPassword() == rhs.GetPassword();
+}
+
 std::ostream& operator<<(std::ostream& os, const PasswordItem& item) {
     return os << item.GetUserName() << std::setw(WIDTH) << item.GetPassword()
               << std::setw(WIDTH) << item.GetAppName() << std::setw(WIDTH) << item.GetUrl() << std::setw(WIDTH)
