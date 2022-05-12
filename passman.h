@@ -1,4 +1,5 @@
- 
+ #pragma once
+
 /*
  * class PassMan:
  *      1. запускает инициализацию Storage                              [done]
@@ -33,7 +34,6 @@
  *          8.5 запрос на изменение к Storage
  *      9. Удаление пароля                                              [to do]
  * */
-#pragma once
 
 #include <string>
 
@@ -41,7 +41,6 @@
 //#include "account.h"
 #include "storage.h" 
 #include "encryption.h"
-#include "password_item.h"
 
 class PassMan {
 public:
@@ -60,4 +59,3 @@ private:
     Storage storage;
     Account active_user;
 };
-

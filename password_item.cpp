@@ -1,6 +1,5 @@
 #include "password_item.h"
 
-
 PasswordItem::PasswordItem(const std::string& password, const std::string& email, const std::string& user_name,
                  const std::string& url, const std::string& app_name)
             : password_(password), email_(email),

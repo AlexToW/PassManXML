@@ -61,7 +61,7 @@ public:
     AUTHORISE_RES ConfirmAuthorisation(Account& account);
     bool RegisterAccount(Account& account);
     bool ExistAccount(const std::string& user_name);
-    bool ExistPasswordItem(PasswordItem& pass_item);
+    bool ExistPasswordItem(PasswordItem const& pass_item);
     std::pair<bool, PasswordItem> ExistPasswordItem(std::string& identifier);
     bool AddPasswordItem(PasswordItem& pass_item);
     static std::string PreprocessingToXML(std::string s);

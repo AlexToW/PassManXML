@@ -1,8 +1,7 @@
 #include "storage.h"
 
-
 std::pair<bool, PasswordItem> Storage::ExistPasswordItem(std::string& identifier) {
-    std::pair<bool, PasswordItem> res = {false, PasswordItem{}};
+    std::pair<bool, PasswordItem> res = {false, PasswordItem()};
     auto it = find_if(begin(all_passwords_), end(all_passwords_), [identifier](PasswordItem& item) {
         return item.GetEmail() == identifier || item.GetAppName() == identifier;
     });
@@ -79,9 +78,8 @@ std::string Storage::PreprocessingFromXML(std::string s) {
                 res += '\'';
                 i += 5;
             }
-        } else {
+        } else
             res += s[i];
-        }
     }
     return res;
 }
@@ -210,8 +208,7 @@ bool Storage::RegisterAccount(Account& acc) {
     return true;
 }
 
-bool Storage::ExistPasswordItem(PasswordItem& pass_item) {
-    //const PasswordItem const_pass_item = pass_item;
+bool Storage::ExistPasswordItem(PasswordItem const& pass_item) {
     return find(all_passwords_.begin(), all_passwords_.end(), pass_item) != all_passwords_.end();
 }
 
