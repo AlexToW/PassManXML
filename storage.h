@@ -15,6 +15,7 @@ using boost::property_tree::ptree;
 
 #include "account.h"
 #include "password_item.h"
+#include "hash.h"
 
 
 /*

@@ -169,10 +169,11 @@ AUTHORISE_RES Storage::ConfirmAuthorisation(Account &account) {
     read_xml(default_autho_path_, pt);
     BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
         std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
-        std::string tmp_master_pass = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
+        std::string tmp_master_pass_hash = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
+        std::string salt = PreprocessingFromXML(acc.second.get_child("salt").get_value("default"));
         if(account.GetUserName() == tmp_user_name) {
             exist = true;
-            if(account.GetMasterPass() == tmp_master_pass) {
+            if(GetHash(account.GetMasterPass(), salt) == tmp_master_pass_hash) {
                 return AUTHORISE_RES::SUCCESS;
             }
         }
@@ -198,11 +199,16 @@ bool Storage::RegisterAccount(Account& acc) {
     }
     ptree pt;
     read_xml(default_autho_path_, pt);
-
-    ptree child;
-    child.add("user_name", PreprocessingToXML(acc.GetUserName()));
-    child.add("master_password", PreprocessingToXML(acc.GetMasterPass()));
-    pt.add_child("accounts.account", child);
+    auto res = GetHashWithSalt(acc.GetMasterPass());
+    if(res.first) {
+        std::string master_pass_hash = res.second[0];
+        std::string salt = res.second[1];
+        ptree child;
+        child.add("user_name", PreprocessingToXML(acc.GetUserName()));
+        child.add("master_password", PreprocessingToXML(master_pass_hash));
+        child.add("salt", PreprocessingToXML(salt));
+        pt.add_child("accounts.account", child);
+    }
 
     write_xml(default_autho_path_, pt);
     return true;

@@ -76,7 +76,11 @@ void PassMan::EditPassword() {
 void PassMan::AllPasswords() {
     auto res = storage.AllPasswords();
     if (res.first == FIND_RES::SUCCESS) {
+        AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
+            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
+            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
@@ -97,7 +101,11 @@ void PassMan::FindPassByName() {
     auto res = storage.SelectAllByAppName(app_name);
 
     if(res.first == FIND_RES::SUCCESS) {
+        AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
+            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
+            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
@@ -113,7 +121,11 @@ void PassMan::FindAccountsByEmail() {
     std::cin >> email;
     auto res = storage.SelectAllByEmail(email);
     if(res.first == FIND_RES::SUCCESS) {
+        AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
+            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
+            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
     } else if(res.first == FIND_RES::NOTFOUND) {
@@ -135,7 +147,10 @@ void PassMan::CreatePassword() {
     std::cin >> url;
     std::cout << "Enter password: ";
     std::cin >> password;
-    PasswordItem pass_item(password, email, user_name,
+    AesEncryption aes("cbc", 256);
+    CryptoPP::SecByteBlock enc = aes.encrypt(password, active_user.GetMasterPass());
+    std::string encrypted_password = std::string(enc.begin(), enc.end());
+    PasswordItem pass_item(encrypted_password, email, user_name,
                            url, app_name);
     auto added = storage.AddPasswordItem(pass_item);
     if(!added) {

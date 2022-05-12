@@ -1,7 +1,7 @@
 all: passman
 
-passman: main.o passman.o storage.o account.o encryption.o password_item.o
-	g++ main.o passman.o storage.o account.o encryption.o password_item.o -o passman -lcryptopp
+passman: main.o passman.o storage.o account.o encryption.o password_item.o hash.o
+	g++ main.o passman.o storage.o account.o encryption.o password_item.o hash.o -o passman -lcryptopp
 
 main.o: main.cpp passman.h
 	g++ -c main.cpp
@@ -9,7 +9,7 @@ main.o: main.cpp passman.h
 passman.o: passman.cpp passman.h storage.h encryption.h
 	g++ -c passman.cpp
 
-storage.o: storage.cpp storage.h account.h password_item.h
+storage.o: storage.cpp storage.h account.h password_item.h hash.h
 	g++ -c storage.cpp
 
 account.o: account.cpp account.h 
@@ -20,3 +20,6 @@ encryption.o: encryption.cpp encryption.h
 
 password_item.o: password_item.cpp password_item.h
 	g++ -c password_item.cpp
+
+hash.o: hash.cpp hash.h
+	g++ -c hash.cpp -lcryptopp
