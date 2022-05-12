@@ -10,7 +10,13 @@ $ ./passman
 ```
 
 ## Functionality
-
+- Support for multiple users
+- Creating a new password
+- Selecting passwords by email or app name
+- Option to display all passwords
+- Editing an existing password
 
 ## To-do
 - [ ] Validation XML-files by schemes
+- [ ] Make characters invisible when entering a password
+- [ ] Removing a password
