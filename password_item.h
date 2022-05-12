@@ -9,8 +9,8 @@
 class PasswordItem {
 public:
     PasswordItem() = default;
-    PasswordItem(const std::string& password, const std::string& email, const std::string& user_name,
-                 const std::string& url, const std::string& app_name);
+    PasswordItem(std::string const& password, std::string const& email, std::string const& user_name,
+                std::string const& url, std::string const& app_name);
     std::string GetPassword() const;
     std::string GetEmail() const;
     std::string GetUserName() const;
@@ -24,4 +24,3 @@ public:
 private:
     std::string password_, email_, user_name_, url_, app_name_;
 };
-

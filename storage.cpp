@@ -79,8 +79,9 @@ std::string Storage::PreprocessingFromXML(std::string s) {
                 res += '\'';
                 i += 5;
             }
-        } else
+        } else {
             res += s[i];
+        }
     }
     return res;
 }
@@ -210,6 +211,7 @@ bool Storage::RegisterAccount(Account& acc) {
 }
 
 bool Storage::ExistPasswordItem(PasswordItem& pass_item) {
+    //const PasswordItem const_pass_item = pass_item;
     return find(all_passwords_.begin(), all_passwords_.end(), pass_item) != all_passwords_.end();
 }
 

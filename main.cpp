@@ -9,6 +9,7 @@ using boost::property_tree::ptree;
 #include <string>
 #include <iomanip>
 #include <sys/stat.h>
+#include <algorithm>
 
 #include "passman.h"
 

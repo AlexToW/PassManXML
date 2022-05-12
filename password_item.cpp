@@ -1,52 +1,6 @@
 #include "password_item.h"
 
 
-bool operator==(PasswordItem& lhs, PasswordItem& rhs) {
-    return lhs.GetUserName() == rhs.GetUserName() &&
-            lhs.GetAppName() == rhs.GetAppName() &&
-            lhs.GetEmail() == rhs.GetEmail() &&
-            lhs.GetUrl() == rhs.GetUrl() &&
-            lhs.GetPassword() == rhs.GetPassword();
-}
-
-bool operator==(const PasswordItem& lhs, PasswordItem& rhs) {
-    return lhs.GetUserName() == rhs.GetUserName() &&
-            lhs.GetAppName() == rhs.GetAppName() &&
-            lhs.GetEmail() == rhs.GetEmail() &&
-            lhs.GetUrl() == rhs.GetUrl() &&
-            lhs.GetPassword() == rhs.GetPassword();
-}
-
-bool operator==(PasswordItem& lhs, const PasswordItem& rhs) {
-    return lhs.GetUserName() == rhs.GetUserName() &&
-            lhs.GetAppName() == rhs.GetAppName() &&
-            lhs.GetEmail() == rhs.GetEmail() &&
-            lhs.GetUrl() == rhs.GetUrl() &&
-            lhs.GetPassword() == rhs.GetPassword();
-}
-
-bool operator==(const PasswordItem& lhs, const PasswordItem& rhs) {
-    return lhs.GetUserName() == rhs.GetUserName() &&
-            lhs.GetAppName() == rhs.GetAppName() &&
-            lhs.GetEmail() == rhs.GetEmail() &&
-            lhs.GetUrl() == rhs.GetUrl() &&
-            lhs.GetPassword() == rhs.GetPassword();
-}
-
-bool operator==(PasswordItem lhs, const PasswordItem rhs) {
-    return lhs.GetUserName() == rhs.GetUserName() &&
-            lhs.GetAppName() == rhs.GetAppName() &&
-            lhs.GetEmail() == rhs.GetEmail() &&
-            lhs.GetUrl() == rhs.GetUrl() &&
-            lhs.GetPassword() == rhs.GetPassword();
-}
-
-std::ostream& operator<<(std::ostream& os, const PasswordItem& item) {
-    return os << item.GetUserName() << std::setw(WIDTH) << item.GetPassword()
-              << std::setw(WIDTH) << item.GetAppName() << std::setw(WIDTH) << item.GetUrl() << std::setw(WIDTH)
-              << item.GetEmail();
-}
-
 PasswordItem::PasswordItem(const std::string& password, const std::string& email, const std::string& user_name,
                  const std::string& url, const std::string& app_name)
             : password_(password), email_(email),
@@ -70,4 +24,19 @@ void PasswordItem::SetUrl(std::string& url) {
 }
 void PasswordItem::SetAppName(std::string& app_name) {
     app_name_ = app_name;
+}  
+
+bool operator==(PasswordItem const& lhs, PasswordItem const& rhs) {
+    return lhs.GetUserName() == rhs.GetUserName() &&
+            lhs.GetAppName() == rhs.GetAppName() &&
+            lhs.GetEmail() == rhs.GetEmail() &&
+            lhs.GetUrl() == rhs.GetUrl() &&
+            lhs.GetPassword() == rhs.GetPassword();
+}
+
+
+std::ostream& operator<<(std::ostream& os, const PasswordItem& item) {
+    return os << item.GetUserName() << std::setw(WIDTH) << item.GetPassword()
+              << std::setw(WIDTH) << item.GetAppName() << std::setw(WIDTH) << item.GetUrl() << std::setw(WIDTH)
+              << item.GetEmail();
 }

@@ -41,6 +41,7 @@
 //#include "account.h"
 #include "storage.h" 
 #include "encryption.h"
+#include "password_item.h"
 
 class PassMan {
 public:
