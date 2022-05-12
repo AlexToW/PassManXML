@@ -4,6 +4,8 @@ An application designed to securely store all your passwords in one place. Power
  ## Usage
 ```bash
 $ git clone https://github.com/AlexToW/PassManXML
+$ sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
+$ sudo apt-get install libboost-all-dev
 $ cd PassManXML
 $ make
 $ ./passman
