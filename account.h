@@ -2,25 +2,23 @@
 
 #include <string>
 
-using namespace std;
-
 class Account {
 public:
     Account() = default;
-    void SetUserName(const string& name) {
+    void SetUserName(const std::string& name) {
         user_name_ = name;
     }
-    void SetMaterPass(const string& pass) {
+    void SetMaterPass(const std::string& pass) {
         master_password_ = pass;
     }
-    Account(const string& user_name, const string& master_pass)
+    Account(const std::string& user_name, const std::string& master_pass)
             : user_name_(user_name), master_password_(master_pass) {}
-    string GetUserName() const {
+    std::string GetUserName() const {
         return user_name_;
     }
-    string GetMasterPass() const {
+    std::string GetMasterPass() const {
         return master_password_;
     }
 private:
-    string user_name_, master_password_;
+    std::string user_name_, master_password_;
 };
