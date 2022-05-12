@@ -201,8 +201,8 @@ bool Storage::RegisterAccount(Account& acc) {
     read_xml(default_autho_path_, pt);
     auto res = GetHashWithSalt(acc.GetMasterPass());
     if(res.first) {
-        std::string master_pass_hash = res.second[0];
-        std::string salt = res.second[1];
+        std::string master_pass_hash = res.second.first;
+        std::string salt = res.second.second;
         ptree child;
         child.add("user_name", PreprocessingToXML(acc.GetUserName()));
         child.add("master_password", PreprocessingToXML(master_pass_hash));

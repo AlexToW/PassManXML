@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
-
+/*
+* class required for working with accounts
+*/
 class Account {
 public:
     Account() = default;

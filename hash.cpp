@@ -1,6 +1,10 @@
 #include "hash.h"
 
 std::string GetHash(const std::string& password, const std::string& salt) {
+    /*
+        for the given password and salt, 
+        calculates the hash of their concatenation
+    */
     std::stringstream ss;
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(ss));
 
@@ -17,6 +21,9 @@ std::string GetHash(const std::string& password, const std::string& salt) {
 }
 
 std::string GenerateSalt(size_t N) {
+    /*
+        generates a random sequence (salt) of N characters
+    */
     std::vector<char> chars = {'!',  '"',  '#',  '$',  '%',  '&',  '\'',  '(',  ')',
                                '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',
                                '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
@@ -33,14 +40,17 @@ std::string GenerateSalt(size_t N) {
 }
 
 
-std::pair<bool, std::vector<std::string>> GetHashWithSalt(const std::string& password) {
+std::pair<bool, std::pair<std::string, std::string>> GetHashWithSalt(const std::string& password) {
+    /*
+        generates a salt and computes a hash of the given password
+    */
     std::string salt = GenerateSalt(8);
     if(1) {
         std::string hash = GetHash(password, salt);
-        std::vector<std::string> v = {hash, salt};
+        std::pair<std::string, std::string> v = std::make_pair(hash, salt);
         return std::make_pair(true, v);
     } else {
-        std::vector<std::string> v = {"", salt};
+        std::pair<std::string, std::string> v = std::make_pair("", salt);
         return std::make_pair(false, v);
     }
 }

@@ -12,4 +12,4 @@
 
 std::string GetHash(const std::string& password, const std::string& salt);
 std::string GenerateSalt(size_t N);
-std::pair<bool, std::vector<std::string>> GetHashWithSalt(const std::string& password);
+std::pair<bool, std::pair<std::string, std::string>> GetHashWithSalt(const std::string& password);
