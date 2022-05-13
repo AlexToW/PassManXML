@@ -145,7 +145,7 @@ void PassMan::FindAccountsByEmail() {
 }
 
 void PassMan::CreatePassword() {
-    std::string password, email, user_name, url, app_name;
+    std::string password1, email, user_name, url, app_name;
     std::cout << indent_str << "Enter user name: ";
     std::cin >> user_name;
     std::cout << indent_str << "Enter email: ";
@@ -156,10 +156,17 @@ void PassMan::CreatePassword() {
     std::cin >> url;
     std::cout << indent_str << "Enter password: ";
     //std::cin >> password;
-    password = GetPasswordSafety();
+    password1 = GetPasswordSafety();
     std::cout << std::endl;
+    std::cout << indent_str << "Confirm password: ";
+    std::string password2 = GetPasswordSafety();
+    std::cout << std::endl;
+    if(password1 != password2) {
+        std::cout << indent_str << "Passwords must match!" << std::endl;
+        return;
+    }
     AesEncryption aes("cbc", 256);
-    CryptoPP::SecByteBlock enc = aes.encrypt(password, active_user.GetMasterPass());
+    CryptoPP::SecByteBlock enc = aes.encrypt(password1, active_user.GetMasterPass());
     std::string encrypted_password = std::string(enc.begin(), enc.end());
     PasswordItem pass_item(encrypted_password, email, user_name,
                            url, app_name);
