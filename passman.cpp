@@ -25,10 +25,19 @@ void PassMan::EditPassword() {
         std::cout << indent_str << "or [s] to stop editing and save changes: ";
         std::cin >> answer;
         if(answer == "p") {
-            std::string new_password;
+            std::string new_password1, new_password2;
             std::cout << indent_str << "Enter new password: ";
-            std::cin >> new_password;
-            new_pass_item.SetPassword(new_password);
+            //std::cin >> new_password;
+            new_password1 = GetPasswordSafety();
+            std::cout << std::endl;
+            std::cout << "Confirm new password: ";
+            new_password2 = GetPasswordSafety();
+            std::cout << std::endl;
+            if(new_password1 == new_password2) {
+                new_pass_item.SetPassword(new_password1);
+            } else {
+                std::cout << "Passwords must match! Try again." << std::endl;
+            }
         } else if(answer == "e") {
             std::string new_email;
             std::cout << indent_str << "Enter new email: ";
@@ -146,7 +155,9 @@ void PassMan::CreatePassword() {
     std::cout << indent_str << "Enter URL: ";
     std::cin >> url;
     std::cout << indent_str << "Enter password: ";
-    std::cin >> password;
+    //std::cin >> password;
+    password = GetPasswordSafety();
+    std::cout << std::endl;
     AesEncryption aes("cbc", 256);
     CryptoPP::SecByteBlock enc = aes.encrypt(password, active_user.GetMasterPass());
     std::string encrypted_password = std::string(enc.begin(), enc.end());
@@ -160,12 +171,32 @@ void PassMan::CreatePassword() {
     }
 }
 
+std::string PassMan::GetPasswordSafety() {
+    std::string password;
+    /* invisible password characters */
+    struct termios term;
+    tcgetattr(fileno(stdin), &term);
+    term.c_lflag &= ~ECHO;
+    tcsetattr(fileno(stdin), 0, &term);
+
+    std::cin >> password;
+
+    /* return visibility */
+    term.c_lflag |= ECHO;
+    tcsetattr(fileno(stdin), 0, &term);
+
+    return password;
+}
+
 AUTHORISE_RES PassMan::Authorisation() {
     std::string login, master_pass_entered;
     std::cout << indent_str << "Enter login: ";
     std::cin >> login;
     std::cout << indent_str << "Enter Master Password: ";
-    std::cin >> master_pass_entered;
+
+    //std::cin >> master_pass_entered;
+    master_pass_entered = GetPasswordSafety();
+    std::cout << std::endl;
     Account tmp_acc(login, master_pass_entered);
     auto res = storage.ConfirmAuthorisation(tmp_acc);
     if(res == AUTHORISE_RES::SUCCESS) {
@@ -184,10 +215,16 @@ bool PassMan::Registration() {
         return false;
     }
     std::string master_password, master_password2;
+
     std::cout << indent_str << "Enter master password: ";
-    std::cin >> master_password;
+    //std::cin >> master_password;
+    master_password = GetPasswordSafety();
+    std::cout << std::endl;
     std::cout << indent_str << "Confirm master password: ";
-    std::cin >> master_password2;
+    //std::cin >> master_password2;
+    master_password2 = GetPasswordSafety();
+    std::cout << std::endl;
+
     if(master_password != master_password2) {
         std::cerr << indent_str << "Passwords must match!" << std::endl;
         return false;

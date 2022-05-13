@@ -36,7 +36,7 @@
  * */
 
 #include <string>
-
+#include <termios.h>
 
 //#include "account.h"
 #include "storage.h" 
@@ -56,6 +56,7 @@ public:
     void AllPasswords();
     void EditPassword();
     void PrintLogo();
+    std::string GetPasswordSafety();
 private:
     Storage storage;
     Account active_user;
