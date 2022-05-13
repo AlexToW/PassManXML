@@ -20,5 +20,5 @@ $ ./passman
 
 ## To-do
 - [ ] Validation XML-files by schemes
-- [ ] Make characters invisible when entering a password
+- [x] Make characters invisible when entering a password
 - [ ] Removing a password
