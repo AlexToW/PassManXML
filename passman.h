@@ -37,11 +37,13 @@
 
 #include <string>
 #include <termios.h>
+#include <unistd.h>
 
 //#include "account.h"
 #include "storage.h" 
 #include "encryption.h"
 #include "defaults.h"
+#include "clipboard.h"
 
 class PassMan {
 public:
@@ -57,6 +59,8 @@ public:
     void EditPassword();
     void PrintLogo();
     std::string GetPasswordSafety();
+    void CopyPassword();
+    //void PushToClipboard(std::string msg);
 private:
     Storage storage;
     Account active_user;

@@ -1,13 +1,13 @@
 all: passman
 
 passman: main.o passman.o storage.o account.o encryption.o password_item.o hash.o
-	g++ main.o passman.o storage.o account.o encryption.o password_item.o hash.o -o passman -lcryptopp
+	g++ main.o passman.o storage.o account.o encryption.o password_item.o hash.o -o passman -lcryptopp -lxcb -pthread
 
 main.o: main.cpp passman.h
 	g++ -c main.cpp
 
-passman.o: passman.cpp passman.h storage.h encryption.h
-	g++ -c passman.cpp
+passman.o: passman.cpp passman.h storage.h encryption.h clipboard.h
+	g++ -c passman.cpp -lxcb -pthread
 
 storage.o: storage.cpp storage.h account.h password_item.h hash.h
 	g++ -c storage.cpp

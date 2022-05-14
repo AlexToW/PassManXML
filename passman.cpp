@@ -1,5 +1,36 @@
 #include "passman.h"
 
+
+void PassMan::CopyPassword() {
+    std::string identifier;
+    std::cout << indent_str <<  "Enter email or app name of password you want to copy: ";
+    std::cin >> identifier;
+
+    auto res = storage.ExistPasswordItem(identifier);
+    bool exist = res.first;
+    if(!exist) {
+        std::cout << indent_str << "There are no any passwords with '" << identifier << "'" << std::endl;
+        return;
+    }
+    PasswordItem pass_item = res.second;
+    AesEncryption aes("cbc", 256);
+    CryptoPP::SecByteBlock enc = aes.decrypt(pass_item.GetPassword(), active_user.GetMasterPass());
+    std::string decrypted_password = std::string(enc.begin(), enc.end()); 
+    pass_item.SetPassword(decrypted_password); 
+
+    clipboardxx::clipboard clipboard;
+    std::string password_ = pass_item.GetPassword();
+    clipboard << password_;
+
+    std::cout << indent_str << "The password has been copied to the clipboard." << std::endl;
+    std::cout << indent_str << "It will be removed from the clipboard after " << SEC_CLIP << " seconds." << std::endl;
+    for(int seconds = SEC_CLIP; seconds >= 0; seconds--) {
+        std::cout << indent_str <<  seconds << " seconds left..." << std::endl;
+        sleep(1);
+    }
+    std::cout << indent_str << "The password has been removed from the clipboard." << std::endl;
+}
+
 void PassMan::EditPassword() {
     std::string identifier;
     std::cout << indent_str <<  "Enter email or app name of password you want to edit: ";
@@ -289,7 +320,8 @@ void PassMan::Menu() {
     std::cout << indent_str << "3. Find a password for a site or app" << std::endl;
     std::cout << indent_str << "4. Print all passwords" << std::endl;
     std::cout << indent_str << "5. Edit existing password" << std::endl;
-    std::cout << indent_str << "6. Exit" << std::endl;
+    std::cout << indent_str << "6. Copy password" << std::endl;
+    std::cout << indent_str << "7. Exit" << std::endl;
     std::cout << std::string(20, '_') << std::endl;
     std::cout << ": ";
     std::string answer;
@@ -304,8 +336,10 @@ void PassMan::Menu() {
         AllPasswords();
     } else if(answer == "5") {
         EditPassword();
+    } else if(answer == "6") {
+        CopyPassword();
     }
-    else if(answer == "6") {
+    else if(answer == "7") {
         exit(0);
     } else {
         std::cout << indent_str << "Choose one of the suggested options!" << std::endl;

@@ -14,3 +14,6 @@
 const char indent_char = ' ';
 const char left_ind_char = ' ';
 const std::string indent_str = std::string(LEFT_INDENT, indent_char) + left_ind_char;
+
+
+const int SEC_CLIP = 10;
