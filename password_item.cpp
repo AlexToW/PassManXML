@@ -35,7 +35,7 @@ bool operator==(PasswordItem const& lhs, PasswordItem const& rhs) {
 
 
 std::ostream& operator<<(std::ostream& os, const PasswordItem& item) {
-    return os << item.GetUserName() << std::setw(WIDTH) << item.GetPassword()
+    return os << item.GetUserName() << std::setw(WIDTH) << std::string(item.GetPassword().length(), '*')
               << std::setw(WIDTH) << item.GetAppName() << std::setw(WIDTH) << item.GetUrl() << std::setw(WIDTH)
               << item.GetEmail();
 }

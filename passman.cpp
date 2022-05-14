@@ -1,5 +1,9 @@
 #include "passman.h"
 
+void PassMan::PrintHeader() {
+    std::cout << "User name"<< std::setw(WIDTH) << "Password" << std::setw(WIDTH) << "App name" 
+            << std::setw(WIDTH) << "URL" << std::setw(WIDTH) << "Email" << std::endl;
+}
 
 void PassMan::CopyPassword() {
     std::string identifier;
@@ -116,6 +120,7 @@ void PassMan::EditPassword() {
 void PassMan::AllPasswords() {
     auto res = storage.AllPasswords();
     if (res.first == FIND_RES::SUCCESS) {
+        PrintHeader();
         AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
             CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
@@ -142,6 +147,7 @@ void PassMan::FindPassByName() {
 
     if(res.first == FIND_RES::SUCCESS) {
         AesEncryption aes("cbc", 256);
+        PrintHeader();
         for(auto& item : res.second) {
             CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
             std::string decrypted_password = std::string(enc.begin(), enc.end());
@@ -161,6 +167,7 @@ void PassMan::FindAccountsByEmail() {
     std::cin >> email;
     auto res = storage.SelectAllByEmail(email);
     if(res.first == FIND_RES::SUCCESS) {
+        PrintHeader();
         AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
             CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
