@@ -17,6 +17,7 @@ $ ./passman
 - Selecting passwords by email or app name
 - Option to display all passwords
 - Editing an existing password
+- Copy password to clipboard
 
 ## To-do
 - [ ] Validation XML-files by schemes
