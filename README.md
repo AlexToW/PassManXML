@@ -21,6 +21,6 @@ $ ./passman
 - Copy password to clipboard
 
 ## To-do
-- [ ] Validation XML-files by schemes
+- [x] Validation XML-files by schemes
 - [x] Make characters invisible when entering a password
 - [ ] Removing a password
