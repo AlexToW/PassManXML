@@ -10,6 +10,7 @@
 #define  UNDERLINE_LEN 18
 #define LEFT_INDENT 5
 
+const size_t width = 28;
 
 const char indent_char = ' ';
 const char left_ind_char = ' ';

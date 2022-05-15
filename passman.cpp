@@ -1,8 +1,11 @@
 #include "passman.h"
 
 void PassMan::PrintHeader() {
-    std::cout << "User name"<< std::setw(WIDTH) << "Password" << std::setw(WIDTH) << "App name" 
-            << std::setw(WIDTH) << "URL" << std::setw(WIDTH) << "Email" << std::endl;
+    std::cout << "User name" << std::string(width - strlen("User name"), ' ') 
+    << "Password" << std::string(width - strlen("Password"), ' ') 
+    << "App name" << std::string(width - strlen("App name"), ' ') 
+    << "URL" << std::string(width - strlen("URL"), ' ') 
+    << "Email" << std::endl;
 }
 
 void PassMan::CopyPassword() {

@@ -3,8 +3,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
-
-#define WIDTH 25
+#include "defaults.h"
 
 class PasswordItem {
 public: 
