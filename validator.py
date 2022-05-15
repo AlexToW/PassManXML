@@ -9,23 +9,26 @@ def validate(path_xsd = "schema.xsd", path_xml = "data.xml"):
         xml = etree.parse(path_xml)
     except etree.ParseError as err:
         print(err)
-        return 0
+        return False
     valid = schema.validate(xml)
     return valid
 
 
 def main():
-    result = 0
-    if(len(sys.argv) == 3):
-        path_xsd = sys.argv[1]
-        path_xml = sys.argv[2]
-        result = validate(path_xsd=path_xsd, path_xml=path_xml)
-    else:
-        result = validate()
+    result1 = 0
+    result2 = 0
+    if(len(sys.argv) == 5):
+        # scheme_data data.xml scheme_auth auth.xml
+        path_data_xsd = sys.argv[1]
+        path_data_xml = sys.argv[2]
+        path_auth_xsd = sys.argv[3]
+        path_auth_xml = sys.argv[4]
+        result1 = validate(path_xsd=path_data_xsd, path_xml=path_data_xml)
+        result2 = validate(path_xsd=path_auth_xsd, path_xml=path_auth_xml)
     
     validate_path = "validate.txt"
     with open(validate_path, "w") as file:
-        file.write(f"{int(result)}")
+        file.write(f"{int(result1 and result2)}")
 
 
 main()

@@ -1,5 +1,34 @@
 #include "storage.h"
 
+
+bool Storage::XSDValidation() {
+    if(system((char*)"python3 validator.py scheme_data.xsd data.xml scheme_auth.xsd authorisation.xml") == -1) {
+        std::cerr << "Validation failed! Something went wrong!" << std::endl;
+        std::cerr << "Errno: " << errno << std::endl;
+        return false;
+    }
+
+    std::string path_validate = "validate.txt";
+    std::ifstream file(path_validate);
+    if(file.is_open()) {
+        std::string res;
+        file >> res;
+        if(res == "1") {
+            return true;
+        }
+        if(res == "0") {
+            return false;
+        }
+    } else {
+        std::cerr << "Validation failed! Unable to open file " << path_validate << std::endl;
+        return false;
+    }
+    file.close();
+    return false;
+}
+
+
+
 std::pair<bool, PasswordItem> Storage::ExistPasswordItem(std::string& identifier) {
     std::pair<bool, PasswordItem> res = {false, PasswordItem()};
     auto it = find_if(begin(all_passwords_), end(all_passwords_), [identifier](PasswordItem& item) {
@@ -85,6 +114,9 @@ std::string Storage::PreprocessingFromXML(std::string s) {
 }
 
 void Storage::Init() {
+    if(!XSDValidation()) {
+        exit(1);
+    }
     if (!ExistDataFile()) {
         std::ofstream data(default_data_path_);
         if (data.is_open()) {}

@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <map>
 #include <set>
+#include <fstream>
 
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
@@ -56,6 +57,7 @@ enum class FIND_RES {
 class Storage {
 public:
     Storage();
+    bool XSDValidation();
     void Init();
     void ParseAllDataByLogin(const std::string& login);
     bool ExistDataFile();
@@ -80,6 +82,7 @@ private:
                                         "<password_items></password_items>";
     const std::string default_autho_data_ = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                                        "<accounts></accounts>";
+    const std::string path_xsd = "scheme.xsd";
     std::string active_login;
     std::vector<PasswordItem> all_passwords_; // all password items by active_login user
 };
