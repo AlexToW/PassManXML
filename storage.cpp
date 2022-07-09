@@ -2,12 +2,17 @@
 
 
 bool Storage::XSDValidation() {
-    if(system((char*)"python3 validator.py scheme_data.xsd data.xml scheme_auth.xsd authorisation.xml") == -1) {
+    /**
+     * Сперва валидация по схеме непустых файлов.
+     * Если они оказались невалидны, то валидация по схеме пустых файлов.
+     */
+    // scheme_data.xsd data.xml scheme_auth.xsd authorisation.xml
+    if(system((char*)"python3 validator.py") == -1) {
         std::cerr << "Validation failed! Something went wrong!" << std::endl;
         std::cerr << "Errno: " << errno << std::endl;
         return false;
     }
-
+    
     std::string path_validate = "validate.txt";
     std::ifstream file(path_validate);
     if(file.is_open()) {
@@ -114,18 +119,24 @@ std::string Storage::PreprocessingFromXML(std::string s) {
 }
 
 void Storage::Init() {
-    if(!XSDValidation()) {
-        exit(1);
-    }
+    bool new_data = false, new_auth = false;
     if (!ExistDataFile()) {
         std::ofstream data(default_data_path_);
         if (data.is_open()) {}
         data << default_xml_data_ << std::endl;
+        new_data = true;
     }
     if (!ExistAuthoFile()) {
         std::ofstream author(default_autho_path_);
         if (author.is_open()) {
             author << default_autho_data_ << std::endl;
+        }
+        new_auth = true;
+    }
+    if(!new_auth || !new_data) {
+        if(!XSDValidation()) {
+            std::cerr << "The files data.xml and authorisation.xml do not match the schema!" << std::endl;
+            exit(1);
         }
     }
 }
