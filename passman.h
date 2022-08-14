@@ -61,7 +61,6 @@ public:
     std::string GetPasswordSafety();
     void CopyPassword();
     void PrintHeader();
-    //void PushToClipboard(std::string msg);
 private:
     Storage storage;
     Account active_user;
