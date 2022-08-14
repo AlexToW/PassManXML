@@ -193,18 +193,28 @@ std::pair<FIND_RES, std::vector<PasswordItem>> Storage::SelectAllByEmail(const s
 
 void Storage::ParseAllDataByLogin(const std::string& login) {
     ptree pt;
-    read_xml(default_data_path_, pt);
-    BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
-        std::string tmp_login = PreprocessingFromXML(password_item.second.get_child("login").get_value("default"));
-        if(tmp_login == login) {
-            std::string user_name = PreprocessingFromXML(password_item.second.get_child("user_name").get_value("default"));
-            std::string password = PreprocessingFromXML(password_item.second.get_child("password").get_value("default"));
-            std::string email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
-            std::string url = PreprocessingFromXML(password_item.second.get_child("url").get_value("default"));
-            std::string app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
-            PasswordItem item(password, email, user_name, url, app_name);
-            all_passwords_.push_back(item);
+    try {
+        read_xml(default_data_path_, pt);
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    try {
+        BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
+            std::string tmp_login = PreprocessingFromXML(password_item.second.get_child("login").get_value("default"));
+            if(tmp_login == login) {
+                std::string user_name = PreprocessingFromXML(password_item.second.get_child("user_name").get_value("default"));
+                std::string password = PreprocessingFromXML(password_item.second.get_child("password").get_value("default"));
+                std::string email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
+                std::string url = PreprocessingFromXML(password_item.second.get_child("url").get_value("default"));
+                std::string app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
+                PasswordItem item(password, email, user_name, url, app_name);
+                all_passwords_.push_back(item);
+            }
         }
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
     active_login = login;
 }
@@ -225,7 +235,12 @@ AUTHORISE_RES Storage::ConfirmAuthorisation(Account &account) {
     // парсим xml с аакаунтами
     ptree pt;
     bool exist = false;
-    read_xml(default_autho_path_, pt);
+    try {
+        read_xml(default_autho_path_, pt);
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
     BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
         std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
         std::string tmp_master_pass_hash = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
