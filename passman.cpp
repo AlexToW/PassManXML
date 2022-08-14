@@ -8,6 +8,14 @@ void PassMan::PrintHeader() {
     << "Email" << std::endl;
 }
 
+std::string PassMan::GetDecryptedPassword(const std::string& encrypted_pass) {
+    AesEncryption aes("cbc", 256);
+    CryptoPP::SecByteBlock enc = aes.decrypt(encrypted_pass, active_user.GetMasterPass());
+    std::string decrypted_password = std::string(enc.begin(), enc.end());
+    return decrypted_password;
+}
+
+
 void PassMan::CopyPassword() {
     std::string identifier;
     std::cout << indent_str <<  "Enter email or app name of password you want to copy: ";
@@ -20,9 +28,8 @@ void PassMan::CopyPassword() {
         return;
     }
     PasswordItem pass_item = res.second;
-    AesEncryption aes("cbc", 256);
-    CryptoPP::SecByteBlock enc = aes.decrypt(pass_item.GetPassword(), active_user.GetMasterPass());
-    std::string decrypted_password = std::string(enc.begin(), enc.end()); 
+
+    std::string decrypted_password = GetDecryptedPassword(pass_item.GetPassword());
     pass_item.SetPassword(decrypted_password); 
 
     clipboardxx::clipboard clipboard;
@@ -46,10 +53,8 @@ void PassMan::EditPassword() {
     auto res = storage.ExistPasswordItem(identifier);
     bool exist = res.first;
     PasswordItem old_pass_item = res.second;  
- 
-    AesEncryption aes("cbc", 256);
-    CryptoPP::SecByteBlock enc = aes.decrypt(old_pass_item.GetPassword(), active_user.GetMasterPass());
-    std::string decrypted_password = std::string(enc.begin(), enc.end()); 
+
+    std::string decrypted_password = GetDecryptedPassword(old_pass_item.GetPassword());
     old_pass_item.SetPassword(decrypted_password); 
  
     PasswordItem new_pass_item = old_pass_item;
@@ -65,7 +70,6 @@ void PassMan::EditPassword() {
         if(answer == "p") {
             std::string new_password1, new_password2;
             std::cout << indent_str << "Enter new password: ";
-            //std::cin >> new_password;
             new_password1 = GetPasswordSafety();
             std::cout << std::endl;
             std::cout << "Confirm new password: ";
@@ -109,6 +113,7 @@ void PassMan::EditPassword() {
     std::cout << indent_str << "Do you want to save your changes? It will be impossible to undo this operation. [y/n]: ";
     std::cin >> confirm;
     if(confirm == "y") {
+        AesEncryption aes("cbc", 256);
         CryptoPP::SecByteBlock enc2 = aes.encrypt(new_pass_item.GetPassword(), active_user.GetMasterPass());
         std::string encrypted_password = std::string(enc2.begin(), enc2.end());
         new_pass_item.SetPassword(encrypted_password);
@@ -124,10 +129,8 @@ void PassMan::AllPasswords() {
     auto res = storage.AllPasswords();
     if (res.first == FIND_RES::SUCCESS) {
         PrintHeader();
-        AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
-            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
-            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            std::string decrypted_password = GetDecryptedPassword(item.GetPassword());
             item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
@@ -149,11 +152,9 @@ void PassMan::FindPassByName() {
     auto res = storage.SelectAllByAppName(app_name);
 
     if(res.first == FIND_RES::SUCCESS) {
-        AesEncryption aes("cbc", 256);
         PrintHeader();
         for(auto& item : res.second) {
-            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
-            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            std::string decrypted_password = GetDecryptedPassword(item.GetPassword());
             item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
@@ -171,10 +172,8 @@ void PassMan::FindAccountsByEmail() {
     auto res = storage.SelectAllByEmail(email);
     if(res.first == FIND_RES::SUCCESS) {
         PrintHeader();
-        AesEncryption aes("cbc", 256);
         for(auto& item : res.second) {
-            CryptoPP::SecByteBlock enc = aes.decrypt(item.GetPassword(), active_user.GetMasterPass());
-            std::string decrypted_password = std::string(enc.begin(), enc.end());
+            std::string decrypted_password = GetDecryptedPassword(item.GetPassword());
             item.SetPassword(decrypted_password);
             std::cout << item << std::endl;
         }
@@ -196,7 +195,6 @@ void PassMan::CreatePassword() {
     std::cout << indent_str << "Enter URL: ";
     std::cin >> url;
     std::cout << indent_str << "Enter password: ";
-    //std::cin >> password;
     password1 = GetPasswordSafety();
     std::cout << std::endl;
     std::cout << indent_str << "Confirm password: ";
@@ -265,11 +263,9 @@ bool PassMan::Registration() {
     std::string master_password, master_password2;
 
     std::cout << indent_str << "Enter master password: ";
-    //std::cin >> master_password;
     master_password = GetPasswordSafety();
     std::cout << std::endl;
     std::cout << indent_str << "Confirm master password: ";
-    //std::cin >> master_password2;
     master_password2 = GetPasswordSafety();
     std::cout << std::endl;
 

@@ -61,6 +61,7 @@ public:
     std::string GetPasswordSafety();
     void CopyPassword();
     void PrintHeader();
+    std::string GetDecryptedPassword(const std::string& encrypted_pass);
 private:
     Storage storage;
     Account active_user;
