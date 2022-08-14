@@ -49,20 +49,35 @@ std::pair<bool, PasswordItem> Storage::ExistPasswordItem(std::string& identifier
 void Storage::EditPasswordItem(std::string& identifier, PasswordItem& new_pass_item) { // identifier == app_name or email
     // замена в файле
     ptree pt;
-    read_xml(default_data_path_, pt);
-    BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
-        std::string tmp_email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
-        std::string tmp_app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
-        if(tmp_email == identifier || tmp_app_name == identifier) {
-            password_item.second.get_child("password").put_value(PreprocessingToXML(new_pass_item.GetPassword()));
-            password_item.second.get_child("email").put_value(PreprocessingToXML(new_pass_item.GetEmail()));
-            password_item.second.get_child("user_name").put_value(PreprocessingToXML(new_pass_item.GetUserName()));
-            password_item.second.get_child("url").put_value(PreprocessingToXML(new_pass_item.GetUrl()));
-            password_item.second.get_child("app_name").put_value(PreprocessingToXML(new_pass_item.GetAppName()));
-        }
-        //password_item.second.get_child("password").put_value("XXX");
+    try {
+        read_xml(default_data_path_, pt);
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
-    write_xml(default_data_path_, pt);
+    try {
+        BOOST_FOREACH(ptree::value_type& password_item, pt.get_child("password_items")) {
+            std::string tmp_email = PreprocessingFromXML(password_item.second.get_child("email").get_value("default"));
+            std::string tmp_app_name = PreprocessingFromXML(password_item.second.get_child("app_name").get_value("default"));
+            if(tmp_email == identifier || tmp_app_name == identifier) {
+                password_item.second.get_child("password").put_value(PreprocessingToXML(new_pass_item.GetPassword()));
+                password_item.second.get_child("email").put_value(PreprocessingToXML(new_pass_item.GetEmail()));
+                password_item.second.get_child("user_name").put_value(PreprocessingToXML(new_pass_item.GetUserName()));
+                password_item.second.get_child("url").put_value(PreprocessingToXML(new_pass_item.GetUrl()));
+                password_item.second.get_child("app_name").put_value(PreprocessingToXML(new_pass_item.GetAppName()));
+            }
+            //password_item.second.get_child("password").put_value("XXX");
+        }
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    try {
+        write_xml(default_data_path_, pt);
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
  
     // замена в all_passwords_
     auto it = find_if(begin(all_passwords_), end(all_passwords_), [identifier](PasswordItem& item) {
@@ -122,8 +137,9 @@ void Storage::Init() {
     bool new_data = false, new_auth = false;
     if (!ExistDataFile()) {
         std::ofstream data(default_data_path_);
-        if (data.is_open()) {}
-        data << default_xml_data_ << std::endl;
+        if (data.is_open()) {
+            data << default_xml_data_ << std::endl;
+        }
         new_data = true;
     }
     if (!ExistAuthoFile()) {
