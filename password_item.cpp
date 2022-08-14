@@ -11,15 +11,15 @@ std::string PasswordItem::GetUserName() const   {return user_name_;}
 std::string PasswordItem::GetUrl() const        {return url_;}
 std::string PasswordItem::GetAppName() const    {return app_name_;}
 
-void PasswordItem::SetPassword(std::string& password) { password_ = password; }
+void PasswordItem::SetPassword(std::string& password)   { password_ = password; }
 
-void PasswordItem::SetEmail(std::string& email) { PasswordItem::email_ = email; }
+void PasswordItem::SetEmail(std::string& email)         { PasswordItem::email_ = email; }
 
-void PasswordItem::SetUserName(std::string& user_name) { user_name_ = user_name; }
+void PasswordItem::SetUserName(std::string& user_name)  { user_name_ = user_name; }
 
-void PasswordItem::SetUrl(std::string& url) { url_ = url; }
+void PasswordItem::SetUrl(std::string& url)             { url_ = url; }
 
-void PasswordItem::SetAppName(std::string& app_name) { app_name_ = app_name; }  
+void PasswordItem::SetAppName(std::string& app_name)    { app_name_ = app_name; }  
 
 bool operator==(PasswordItem const& lhs, PasswordItem const& rhs) {
     return lhs.GetUserName() == rhs.GetUserName() &&

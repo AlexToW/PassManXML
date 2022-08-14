@@ -241,28 +241,43 @@ AUTHORISE_RES Storage::ConfirmAuthorisation(Account &account) {
         std::cerr << ex.what() << std::endl;
         exit(EXIT_FAILURE);
     }
-    BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
-        std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
-        std::string tmp_master_pass_hash = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
-        std::string salt = PreprocessingFromXML(acc.second.get_child("salt").get_value("default"));
-        if(account.GetUserName() == tmp_user_name) {
-            exist = true;
-            if(GetHash(account.GetMasterPass(), salt) == tmp_master_pass_hash) {
-                return AUTHORISE_RES::SUCCESS;
+    try {
+        BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
+            std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
+            std::string tmp_master_pass_hash = PreprocessingFromXML(acc.second.get_child("master_password").get_value("default"));
+            std::string salt = PreprocessingFromXML(acc.second.get_child("salt").get_value("default"));
+            if(account.GetUserName() == tmp_user_name) {
+                exist = true;
+                if(GetHash(account.GetMasterPass(), salt) == tmp_master_pass_hash) {
+                    return AUTHORISE_RES::SUCCESS;
+                }
             }
         }
+    } catch(std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
     return exist ? AUTHORISE_RES::INCORRECT : AUTHORISE_RES::NOACC;
 }
 
 bool Storage::ExistAccount(const std::string& user_name) {
     ptree pt;
-    read_xml(default_autho_path_, pt);
-    BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
-        std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
-        if(user_name == tmp_user_name) {
-            return true;
+    try {
+        read_xml(default_autho_path_, pt);
+    } catch (std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    try {
+        BOOST_FOREACH(ptree::value_type & acc, pt.get_child("accounts")) {
+            std::string tmp_user_name = PreprocessingFromXML(acc.second.get_child("user_name").get_value("default"));
+            if(user_name == tmp_user_name) {
+                return true;
+            }
         }
+    } catch (std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
     return false;
 }
@@ -272,19 +287,34 @@ bool Storage::RegisterAccount(Account& acc) {
         return false;
     }
     ptree pt;
-    read_xml(default_autho_path_, pt);
+    try {
+        read_xml(default_autho_path_, pt);
+    } catch (std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
     auto res = GetHashWithSalt(acc.GetMasterPass());
     if(res.first) {
         std::string master_pass_hash = res.second.first;
         std::string salt = res.second.second;
         ptree child;
-        child.add("user_name", PreprocessingToXML(acc.GetUserName()));
-        child.add("master_password", PreprocessingToXML(master_pass_hash));
-        child.add("salt", PreprocessingToXML(salt));
+        try {
+            child.add("user_name", PreprocessingToXML(acc.GetUserName()));
+            child.add("master_password", PreprocessingToXML(master_pass_hash));
+            child.add("salt", PreprocessingToXML(salt));
+        } catch (boost::property_tree::ptree_bad_data& ex) {
+            std::cerr << ex.what() << std::endl;
+            return false;
+        }
         pt.add_child("accounts.account", child);
     }
-
-    write_xml(default_autho_path_, pt);
+    try {
+        write_xml(default_autho_path_, pt);
+    } catch (boost::property_tree::xml_parser_error& ex) {
+        std::cerr << ex.what() << std::endl;
+        std::cerr << ex.message() << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -294,12 +324,17 @@ bool Storage::ExistPasswordItem(PasswordItem const& pass_item) {
 
 boost::property_tree::ptree Storage::ChildByPasswordItem(PasswordItem& pass_item) {
     ptree child;
-    child.add("login", PreprocessingToXML(active_login));
-    child.add("password", PreprocessingToXML(pass_item.GetPassword()));
-    child.add("email", PreprocessingToXML(pass_item.GetEmail()));
-    child.add("user_name", PreprocessingToXML(pass_item.GetEmail()));
-    child.add("url", PreprocessingToXML(pass_item.GetUrl()));
-    child.add("app_name", PreprocessingToXML(pass_item.GetAppName()));
+    try {
+        child.add("login", PreprocessingToXML(active_login));
+        child.add("password", PreprocessingToXML(pass_item.GetPassword()));
+        child.add("email", PreprocessingToXML(pass_item.GetEmail()));
+        child.add("user_name", PreprocessingToXML(pass_item.GetEmail()));
+        child.add("url", PreprocessingToXML(pass_item.GetUrl()));
+        child.add("app_name", PreprocessingToXML(pass_item.GetAppName()));
+    } catch (boost::property_tree::ptree_bad_data& ex) {
+        std::cerr << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
     return child;
 }
 
@@ -308,11 +343,28 @@ bool Storage::AddPasswordItem(PasswordItem& pass_item) {
         return false;
     }
     ptree pt;
-    read_xml(default_data_path_, pt);
+    try {
+        read_xml(default_data_path_, pt);
+    } catch (boost::property_tree::xml_parser_error& ex) {
+        std::cerr << ex.what() << std::endl;
+        std::cerr << ex.message() << std::endl;
+        return false;
+    }
 
     ptree child = ChildByPasswordItem(pass_item);
-    pt.add_child("password_items.password_item", child);
-    write_xml(default_data_path_, pt);
+    try {
+        pt.add_child("password_items.password_item", child);
+    } catch (std::exception const& ex) {
+        std::cerr << ex.what() << std::endl;
+        return false;
+    }
+    try {
+        write_xml(default_data_path_, pt);
+    } catch (boost::property_tree::xml_parser_error& ex) {
+        std::cerr << ex.what() << std::endl;
+        std::cerr << ex.message() << std::endl;
+        return false;
+    }
     all_passwords_.push_back(pass_item);
     return true;
 }
